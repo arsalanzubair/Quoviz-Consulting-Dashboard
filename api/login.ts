@@ -9,16 +9,20 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const body = await parseJsonBody(req);
     const { password } = body;
 
-    if (!process.env.ADMIN_PASSWORD) {
+    const expectedPassword = (process.env.ADMIN_PASSWORD || '').replace(/^["'](.+)["']$/, '$1').trim();
+    const receivedPassword = (password || '').trim();
+
+    if (!expectedPassword) {
         console.error('[login] ADMIN_PASSWORD env var is not set');
         return sendJson(res, 500, { error: 'Server misconfiguration' });
     }
 
-    if (password === process.env.ADMIN_PASSWORD) {
+    if (receivedPassword === expectedPassword) {
         const token = signToken();
         res.setHeader('Set-Cookie', getTokenCookieHeader(token));
         return sendJson(res, 200, { success: true });
     }
 
+    console.log(`[login] Password mismatch. Expected: ${expectedPassword}, Received: ${receivedPassword}`);
     return sendJson(res, 401, { error: 'Invalid password' });
 }
