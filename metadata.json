@@ -1,0 +1,5 @@
+{
+  "name": "AI Voice Agent Dashboard",
+  "description": "Internal monitoring dashboard for AI Voice Agent call records and appointments.",
+  "requestFramePermissions": []
+}
