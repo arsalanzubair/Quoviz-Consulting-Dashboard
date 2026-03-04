@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { parseJsonBody, signToken, getTokenCookieHeader, sendJson } from './_lib/auth.ts';
+import { parseJsonBody, signToken, getTokenCookieHeader, sendJson } from './_lib/auth.js';
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
     if (req.method !== 'POST') {
