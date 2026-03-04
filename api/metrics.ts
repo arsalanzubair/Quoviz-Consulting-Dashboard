@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { verifyToken, sendJson } from './_lib/auth.ts';
-import { fetchWebhookData } from './_lib/webhook.ts';
+import { verifyToken, sendJson } from './_lib/auth.js';
+import { fetchWebhookData } from './_lib/webhook.js';
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
     if (req.method !== 'GET') {
