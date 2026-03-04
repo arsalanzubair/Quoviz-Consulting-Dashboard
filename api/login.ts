@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { parseJsonBody, signToken, getTokenCookieHeader, sendJson } from './_lib/auth';
+import { parseJsonBody, signToken, getTokenCookieHeader, sendJson } from './_lib/auth.js';
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
     if (req.method !== 'POST') {
@@ -9,7 +9,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const body = await parseJsonBody(req);
     const { password } = body;
 
-    const expectedPassword = (process.env.ADMIN_PASSWORD || '').replace(/^["'](.+)["']$/, '$1').trim();
+    const expectedPassword = (process.env.ADMIN_PASSWORD || '')
+        .replace(/^["'](.+)["']$/, '$1')
+        .trim();
+
     const receivedPassword = (password || '').trim();
 
     if (!expectedPassword) {
