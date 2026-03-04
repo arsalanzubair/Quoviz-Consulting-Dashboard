@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { verifyToken, sendJson } from './_lib/auth';
-import { fetchWebhookData } from './_lib/webhook';
+import { verifyToken, sendJson } from './_lib/auth.js';
+import { fetchWebhookData } from './_lib/webhook.js';
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
     if (req.method !== 'GET') {
@@ -21,7 +21,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
         const webhookData = await fetchWebhookData();
         let records = (webhookData?.table || []).map((r: any) => {
-            // Parse duration "M:SS" string into seconds
             let duration_seconds = 0;
             if (r.duration && typeof r.duration === 'string') {
                 const parts = r.duration.split(':');
@@ -29,6 +28,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
                     duration_seconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
                 }
             }
+
             return {
                 ...r,
                 call_type: (r.type || 'OTHER').toLowerCase(),
@@ -39,7 +39,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
             };
         });
 
-        // In-memory filtering
         if (search) {
             const s = search.toLowerCase();
             records = records.filter((r: any) =>
