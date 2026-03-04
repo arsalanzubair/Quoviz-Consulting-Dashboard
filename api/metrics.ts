@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { verifyToken, sendJson } from './_lib/auth.js';
-import { fetchWebhookData } from './_lib/webhook.js';
+import { verifyToken, sendJson } from './_lib/auth.ts';
+import { fetchWebhookData } from './_lib/webhook.ts';
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
     if (req.method !== 'GET') {
@@ -19,10 +19,14 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
             totalCalls: summary.total_calls ?? 0,
             totalAppointments: summary.total_appointments ?? 0,
             callsToday: summary.calls_today ?? 0,
-            appointmentsToday: summary.appointments_today ?? 0,
+            appointmentsToday: summary.appointments_today ?? 0
         });
+
     } catch (error: any) {
         console.error('[metrics] Error:', error.message);
-        return sendJson(res, 500, { error: error.message || 'Internal server error' });
+
+        return sendJson(res, 500, {
+            error: error.message || 'Internal server error'
+        });
     }
 }
