@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { verifyToken, sendJson } from './_lib/auth.js';
-import { fetchWebhookData } from './_lib/webhook.js';
+import { verifyToken, sendJson } from './_lib/auth.ts';
+import { fetchWebhookData } from './_lib/webhook.ts';
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
     if (req.method !== 'GET') {
@@ -20,8 +20,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         const status = url.searchParams.get('status') || '';
 
         const webhookData = await fetchWebhookData();
+
         let records = (webhookData?.table || []).map((r: any) => {
             let duration_seconds = 0;
+
             if (r.duration && typeof r.duration === 'string') {
                 const parts = r.duration.split(':');
                 if (parts.length === 2) {
@@ -61,11 +63,19 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
         const total = records.length;
         const offset = (page - 1) * limit;
+
         const paginatedRecords = records.slice(offset, offset + limit);
 
-        return sendJson(res, 200, { data: paginatedRecords, total });
+        return sendJson(res, 200, {
+            data: paginatedRecords,
+            total
+        });
+
     } catch (error: any) {
         console.error('[call-records] Error:', error.message);
-        return sendJson(res, 500, { error: error.message || 'Internal server error' });
+
+        return sendJson(res, 500, {
+            error: error.message || 'Internal server error'
+        });
     }
 }
