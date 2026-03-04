@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { verifyToken, sendJson } from './_lib/auth.js';
+import { verifyToken, sendJson } from './_lib/auth.ts';
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
     if (req.method !== 'GET') {
@@ -7,5 +7,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     }
 
     const authenticated = verifyToken(req);
-    return sendJson(res, 200, { authenticated });
+
+    return sendJson(res, 200, {
+        authenticated
+    });
 }
