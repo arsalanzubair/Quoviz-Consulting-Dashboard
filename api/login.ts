@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { parseJsonBody, signToken, getTokenCookieHeader, sendJson } from './_lib/auth.js';
+import { parseJsonBody, signToken, getTokenCookieHeader, sendJson } from './_lib/auth.ts';
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
     if (req.method !== 'POST') {
@@ -17,15 +17,25 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
     if (!expectedPassword) {
         console.error('[login] ADMIN_PASSWORD env var is not set');
-        return sendJson(res, 500, { error: 'Server misconfiguration' });
+
+        return sendJson(res, 500, {
+            error: 'Server misconfiguration'
+        });
     }
 
     if (receivedPassword === expectedPassword) {
         const token = signToken();
+
         res.setHeader('Set-Cookie', getTokenCookieHeader(token));
-        return sendJson(res, 200, { success: true });
+
+        return sendJson(res, 200, {
+            success: true
+        });
     }
 
     console.log(`[login] Password mismatch. Expected: ${expectedPassword}, Received: ${receivedPassword}`);
-    return sendJson(res, 401, { error: 'Invalid password' });
+
+    return sendJson(res, 401, {
+        error: 'Invalid password'
+    });
 }
