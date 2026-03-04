@@ -63,10 +63,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-        res.setHeader(
-            'Content-Disposition',
-            'attachment; filename="quoviz_call_records.csv"'
-        );
+        res.setHeader('Content-Disposition', 'attachment; filename="quoviz_call_records.csv"');
 
         res.end(csvContent);
 
