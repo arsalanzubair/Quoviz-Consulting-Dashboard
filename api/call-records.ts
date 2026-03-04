@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { verifyToken, sendJson } from './_lib/auth.ts';
-import { fetchWebhookData } from './_lib/webhook.ts';
+import { verifyToken, sendJson } from './_lib/auth.js';
+import { fetchWebhookData } from './_lib/webhook.js';
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
     if (req.method !== 'GET') {
@@ -13,6 +13,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
     try {
         const url = new URL(req.url || '', `http://${req.headers.host}`);
+
         const page = parseInt(url.searchParams.get('page') || '1');
         const limit = parseInt(url.searchParams.get('limit') || '10');
         const search = url.searchParams.get('search') || '';
@@ -37,12 +38,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
                 call_status: (r.status || 'UNKNOWN').toLowerCase(),
                 duration_seconds,
                 created_at: r.created_date,
-                appointment_booked: r.appointment === 'YES',
+                appointment_booked: r.appointment === 'YES'
             };
         });
 
         if (search) {
             const s = search.toLowerCase();
+
             records = records.filter((r: any) =>
                 (r.lead_name || '').toLowerCase().includes(s) ||
                 (r.phone_number || '').toLowerCase().includes(s)
