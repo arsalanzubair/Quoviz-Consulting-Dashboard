@@ -208,26 +208,7 @@ export default function Dashboard() {
               <option value="outbound">Outbound</option>
               <option value="widget">Widget</option>
 
-            </select>
-
-            {/* STATUS FILTER */}
-
-            <select
-              value={status}
-              onChange={(e) => {
-                setStatus(e.target.value);
-                setPage(1);
-              }}
-              className="text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-
-              <option value="">All Statuses</option>
-              <option value="completed">Completed</option>
-              <option value="missed">Missed</option>
-              <option value="failed">Failed</option>
-
-            </select>
-
+        
           </div>
 
         </div>
