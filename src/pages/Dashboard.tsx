@@ -17,7 +17,6 @@ export default function Dashboard() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
-  const [status, setStatus] = useState('');
 
   const [selectedCall, setSelectedCall] = useState<CallRecord | null>(null);
   const [exporting, setExporting] = useState(false);
@@ -30,7 +29,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchCalls();
-  }, [page, search, type, status]);
+  }, [page, search, type]);
 
   const fetchMetrics = async () => {
     try {
@@ -44,6 +43,7 @@ export default function Dashboard() {
   };
 
   const fetchCalls = async () => {
+
     setLoading(true);
 
     try {
@@ -52,8 +52,7 @@ export default function Dashboard() {
         page: page.toString(),
         limit: limit.toString(),
         search,
-        type,
-        status,
+        type
       });
 
       const res = await fetch(`/api/call-records?${params}`);
@@ -210,24 +209,6 @@ export default function Dashboard() {
 
             </select>
 
-            {/* STATUS FILTER */}
-
-            <select
-              value={status}
-              onChange={(e) => {
-                setStatus(e.target.value);
-                setPage(1);
-              }}
-              className="text-sm border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-
-              <option value="">All Statuses</option>
-              <option value="completed">Completed</option>
-              <option value="missed">Missed</option>
-              <option value="failed">Failed</option>
-
-            </select>
-
           </div>
 
         </div>
@@ -294,27 +275,19 @@ export default function Dashboard() {
                         {call.phone_number || 'N/A'}
                       </td>
 
-                      {/* TYPE BADGE */}
-
                       <td className="px-6 py-4">
 
                         <span className={cn(
                           "px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tight",
-
                           call.call_type === 'inbound'
                             ? "bg-blue-50 text-blue-700"
-
                             : call.call_type === 'outbound'
                             ? "bg-purple-50 text-purple-700"
-
                             : call.call_type === 'widget'
                             ? "bg-emerald-50 text-emerald-700"
-
                             : "bg-slate-100 text-slate-600"
                         )}>
-
                           {call.call_type}
-
                         </span>
 
                       </td>
@@ -331,14 +304,11 @@ export default function Dashboard() {
 
                         <span className={cn(
                           "px-2 py-1 rounded text-[10px] font-bold uppercase",
-
                           call.appointment_booked
                             ? "bg-emerald-100 text-emerald-800"
                             : "bg-slate-100 text-slate-600"
                         )}>
-
                           {call.appointment_booked ? "Yes" : "No"}
-
                         </span>
 
                       </td>
