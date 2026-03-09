@@ -17,15 +17,16 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         const url = new URL(req.url || '', `http://${req.headers.host}`);
 
         const page = parseInt(url.searchParams.get('page') || '1');
-        const limit = parseInt(url.searchParams.get('limit') || '5');
+        const limit = parseInt(url.searchParams.get('limit') || '10');
         const search = url.searchParams.get('search') || '';
         const type = url.searchParams.get('type') || '';
+        const status = url.searchParams.get('status') || '';
 
         const webhookData = await fetchWebhookData();
 
-        /* ---------------------------
+        /* ---------------------------------
            NORMALIZE RECORD STRUCTURE
-        --------------------------- */
+        --------------------------------- */
 
         let records = (webhookData?.table || []).map((r: any) => {
 
@@ -49,34 +50,29 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
         });
 
-        /* ---------------------------
-           REMOVE DUPLICATES
-        --------------------------- */
 
-        const seen = new Set();
+        /* ---------------------------------
+           REMOVE DUPLICATE RECORDS
+        --------------------------------- */
 
-        records = records.filter((r: any) => {
+        const uniqueMap = new Map();
 
-            const key = `${r.phone_number}-${r.created_at}-${r.duration}`;
+        for (const record of records) {
 
-            if (seen.has(key)) return false;
+            const key = `${record.phone_number}-${record.created_at}-${record.duration}`;
 
-            seen.add(key);
-            return true;
+            if (!uniqueMap.has(key)) {
+                uniqueMap.set(key, record);
+            }
 
-        });
+        }
 
-        /* ---------------------------
-           SORT BY LATEST FIRST
-        --------------------------- */
+        records = Array.from(uniqueMap.values());
 
-        records.sort((a: any, b: any) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
 
-        /* ---------------------------
+        /* ---------------------------------
            SEARCH FILTER
-        --------------------------- */
+        --------------------------------- */
 
         if (search) {
 
@@ -89,27 +85,43 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
         }
 
-        /* ---------------------------
+
+        /* ---------------------------------
            TYPE FILTER
-        --------------------------- */
+        --------------------------------- */
 
         if (type) {
 
             records = records.filter((r: any) =>
-                (r.call_type || '').toLowerCase() === type.toLowerCase()
+                (r.type || '').toLowerCase() === type.toLowerCase()
             );
 
         }
 
-        /* ---------------------------
+
+        /* ---------------------------------
+           STATUS FILTER
+        --------------------------------- */
+
+        if (status) {
+
+            records = records.filter((r: any) =>
+                (r.status || '').toLowerCase() === status.toLowerCase()
+            );
+
+        }
+
+
+        /* ---------------------------------
            PAGINATION
-        --------------------------- */
+        --------------------------------- */
 
         const total = records.length;
 
         const offset = (page - 1) * limit;
 
         const paginatedRecords = records.slice(offset, offset + limit);
+
 
         return sendJson(res, 200, {
             data: paginatedRecords,
