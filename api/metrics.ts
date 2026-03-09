@@ -16,10 +16,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
         const webhookData = await fetchWebhookData();
 
-        /* ---------------------------
-           NORMALIZE RECORD STRUCTURE
-        --------------------------- */
-
         let records = (webhookData?.table || []).map((r: any) => ({
             ...r,
             created_at: r.created_date,
@@ -39,15 +35,22 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
             if (seen.has(key)) return false;
 
             seen.add(key);
-            return true;
 
+            return true;
         });
+
+        /* ---------------------------
+           GET TODAY DATE
+        --------------------------- */
+
+        const today = new Date();
+
+        const todayMonth = today.toLocaleString('en-US', { month: 'short' });
+        const todayDay = today.getDate();
 
         /* ---------------------------
            CALCULATE METRICS
         --------------------------- */
-
-        const today = new Date().toISOString().slice(0, 10);
 
         const totalCalls = records.length;
 
@@ -55,13 +58,37 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
             (r: any) => r.appointment_booked
         ).length;
 
-        const callsToday = records.filter((r: any) =>
-            r.created_at?.startsWith(today)
-        ).length;
+        const callsToday = records.filter((r: any) => {
 
-        const appointmentsToday = records.filter((r: any) =>
-            r.created_at?.startsWith(today) && r.appointment_booked
-        ).length;
+            if (!r.created_at) return false;
+
+            const parts = r.created_at.split(',');
+
+            if (!parts.length) return false;
+
+            const [month, day] = parts[0].split(' ');
+
+            return month === todayMonth && Number(day) === todayDay;
+
+        }).length;
+
+        const appointmentsToday = records.filter((r: any) => {
+
+            if (!r.created_at) return false;
+
+            const parts = r.created_at.split(',');
+
+            if (!parts.length) return false;
+
+            const [month, day] = parts[0].split(' ');
+
+            return (
+                month === todayMonth &&
+                Number(day) === todayDay &&
+                r.appointment_booked
+            );
+
+        }).length;
 
         return sendJson(res, 200, {
             totalCalls,
